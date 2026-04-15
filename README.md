@@ -1,1 +1,129 @@
-IyBNdWx0aWNvbG91ciBDdWJlCgpBIDJEIHB1enpsZSBwbGF0Zm9ybWVyIGJ1aWx0IHdpdGggVW5pdHkuIFRoZSBwbGF5ZXIgbmF2aWdhdGVzIHRocm91Z2ggY29sb3ItYmFzZWQgcHV6emxlcyBhY3Jvc3MgbXVsdGlwbGUgbGV2ZWxzLgoKLS0tCgojIyBGZWF0dXJlcwoKLSAxMCsgdW5pcXVlIGxldmVscwotIENvbG9yLWJhc2VkIG1lY2hhbmljcyB3aXRoIGBQbGF5ZXJDb2xvclNlbnNvcmAKLSBQaHlzaWNzLWJhc2VkIG9iamVjdHMgYW5kIHRyYXBzCi0gTGV2ZWwgc2VsZWN0aW9uIG1lbnUKLSBSZXNwYXduIHN5c3RlbQoKIyMgU2NlbmVzCgp8IFNjZW5lIHwgRGVzY3JpcHRpb24gfAp8LS0tLS0tfC0tLS0tLS0tLS0tLS18CnwgTWFpbiBNZW51IHwgVGl0bGUgc2NyZWVuIHwKfCBMZXZlbCBTZWxlY3QgfCBDaG9vc2UgYSBsZXZlbCB8CnwgTGV2ZWwgMC0xMCB8IEdhbWVwbGF5IHN0YWdlcyB8CgojIyBCdWlsdCBXaXRoCgotIFVuaXR5IDJECi0gQyMKLSBQaHlzaWNzMkQK
+# 彩色方块 · Multicolour Cube
+
+> 一款基于 Unity 2022 的 2D 平台跳跃游戏。玩家操控一个可四面旋转的彩色方块，利用每个面的特殊能力穿越关卡，收集星星与金币，解锁更多章节。
+
+---
+
+## 游戏特色
+
+- **四面旋转重力** — 方块可站在任意表面，重力随接触面动态改变
+- **面能力系统** — 每个面可搭载不同能力（粘墙、跳跃增强、子弹防御、传送锚点）
+- **丰富平台机制** — 移动平台、消失平台、变色平台、子弹破坏平台等
+- **存档点 & 完整状态重置** — 死亡后恢复至最近存档点，所有可重置对象同步还原
+- **星星 & 金币收集** — 每关最多 3 颗星，成绩跨会话持久保存
+- **章节消耗解锁** — 累积足够可用星星后，主动消耗以解锁下一章节
+- **关卡选择 UI** — 每关显示三星槽位与最佳成绩，右上角全局资源 HUD
+
+---
+
+## 关卡结构
+
+| 章节 | 关卡 | 解锁条件 |
+|------|------|----------|
+| 第一章 | Level 1 – 5 | 默认开放 |
+| 第二章 | Level 6 – 10 | 消耗 **12 颗**可用星星 |
+
+- **Level 0** — 测试 / 教学关卡，始终可进入
+- 章节内，当前关获得 **≥ 2 颗星**即可解锁下一关
+- 可用星星 = 各关最佳星星总和 − 已消耗星星数
+
+---
+
+## 玩家能力
+
+| 能力 | 触发方式 | 效果 |
+|------|----------|------|
+| 粘墙（StickyWall） | 对应面接触墙壁 | 零重力攀附 + 墙跳 |
+| 跳跃增强（JumpBoost） | 对应面落在特殊平台 | 跳跃力倍增 |
+| 子弹防御（BulletDefense） | 手动激活 | 免疫或反弹子弹 |
+| 传送锚点（TeleportAnchor） | 右键设置 / 传送 | 瞬移回标记点 |
+| 颜色感应（ColorSensor） | 接触平台 | 检测接触面颜色，驱动变色平台 |
+
+---
+
+## 平台 & 机关
+
+- 移动平台（定点往返）
+- 按钮触发平台
+- 消失平台（站上后延迟消失）
+- 下方撞碎平台
+- 子弹破坏平台
+- 变色平台（随玩家面颜色变化）
+- 炮塔 + 子弹
+- 死亡区域（即死）
+
+---
+
+## 数据持久化
+
+所有关卡成绩通过 `PlayerPrefs` 跨会话保存：
+
+| 键名 | 类型 | 说明 |
+|------|------|------|
+| `BestStars_{关卡名}` | int | 该关最佳星星数 |
+| `BestCoins_{关卡名}` | int | 该关最佳金币数 |
+| `Completed_{关卡名}` | int (0/1) | 是否通关 |
+| `SpentStars` | int | 已消耗用于解锁的星星数 |
+| `ChapterUnlocked_{索引}` | int (0/1) | 对应章节是否已解锁 |
+
+---
+
+## 项目结构
+
+```
+Assets/
+├── Code/
+│   ├── Players/          # 玩家控制器 & 面能力
+│   ├── Map/              # 平台、机关、存档点
+│   │   └── Re/           # 可重置对象系统
+│   ├── Canvas/           # UI（胜利界面、暂停、收集品）
+│   ├── Camera/           # 视差滚动
+│   ├── LevelDataManager.cs   # 数据持久化工具
+│   ├── ChapterConfig.cs      # 章节配置 ScriptableObject
+│   ├── LevelButton.cs        # 关卡选择按钮组件
+│   ├── LevelSelect.cs        # 关卡选择控制器
+│   └── GameTimer.cs          # 计时器单例
+├── Scenes/
+│   ├── Main_menu.unity
+│   ├── LevelSelect.unity
+│   └── Level 0-10.unity
+├── Prefabricate/         # 角色、平台、道具预制体
+├── Settings/
+│   └── ChapterConfig.asset   # 章节结构配置
+├── Texture/              # 贴图素材
+└── bgm/                  # 背景音乐
+```
+
+---
+
+## 技术栈
+
+| 项目 | 版本 |
+|------|------|
+| Unity | 2022.3.62f1 (LTS) |
+| 渲染管线 | Universal Render Pipeline (URP) 2D |
+| 语言 | C# |
+| 相机 | Cinemachine 2.10.4 |
+| UI 文字 | TextMesh Pro 3.0.9 |
+| 字体 | ZCOOL 快乐体 · 得意黑 |
+
+---
+
+## 如何运行
+
+1. 克隆仓库
+   ```bash
+   git clone https://github.com/qiongzhang1225-alt/unity.git
+   ```
+2. 用 **Unity Hub** 打开项目（推荐版本 2022.3.x LTS）
+3. 等待依赖包自动导入
+4. 打开 `Assets/Scenes/Main_menu.unity`，点击 Play
+
+---
+
+## 分支说明
+
+| 分支 | 说明 |
+|------|------|
+| `main` | 稳定版本 |
+| `master` | 开发分支（含最新功能，待合并） |
