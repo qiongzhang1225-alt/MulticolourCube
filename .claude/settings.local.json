@@ -10,7 +10,11 @@
       "mcp__unityMCP__manage_scene",
       "mcp__unityMCP__execute_code",
       "mcp__unityMCP__read_console",
-      "Bash(grep -E \"Code|cs$|\\\\.cs\")"
+      "Bash(grep -E \"Code|cs$|\\\\.cs\")",
+      "Bash(gh repo:*)",
+      "Bash(where gh:*)",
+      "Bash(powershell -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object Source\")",
+      "Bash(powershell -Command \"gh --version\")"
     ]
   }
 }
