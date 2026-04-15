@@ -6,7 +6,15 @@
       "Bash(cp \"Level 3.unity\" \"Level 8.unity\")",
       "Bash(cp \"Level 3.unity\" \"Level 9.unity\")",
       "Bash(cp \"Level 3.unity\" \"Level 10.unity\")",
-      "Bash(grep -n -A 60 \"m_Name: Level 1$\" \"F:/unity_program/multicolour-cube/Assets/Scenes/LevelSelect.unity\")"
+      "Bash(grep -n -A 60 \"m_Name: Level 1$\" \"F:/unity_program/multicolour-cube/Assets/Scenes/LevelSelect.unity\")",
+      "mcp__unityMCP__manage_scene",
+      "mcp__unityMCP__execute_code",
+      "mcp__unityMCP__read_console",
+      "Bash(grep -E \"Code|cs$|\\\\.cs\")",
+      "Bash(gh repo:*)",
+      "Bash(where gh:*)",
+      "Bash(powershell -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object Source\")",
+      "Bash(powershell -Command \"gh --version\")"
     ]
   }
 }
