@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"Level 3.unity\" \"Level 6.unity\")",
+      "Bash(cp \"Level 3.unity\" \"Level 7.unity\")",
+      "Bash(cp \"Level 3.unity\" \"Level 8.unity\")",
+      "Bash(cp \"Level 3.unity\" \"Level 9.unity\")",
+      "Bash(cp \"Level 3.unity\" \"Level 10.unity\")",
+      "Bash(grep -n -A 60 \"m_Name: Level 1$\" \"F:/unity_program/multicolour-cube/Assets/Scenes/LevelSelect.unity\")"
+    ]
+  }
+}
