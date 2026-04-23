@@ -134,6 +134,12 @@ MonoBehaviour:
   firePoint: {fileID: 2497511110926813272}
   fireRate: 1
   bulletSpeed: 10
+  useColorPattern: 1
+  colorPattern:
+  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  colorOrder: 0
 --- !u!1 &4596694973335452725
 GameObject:
   m_ObjectHideFlags: 0

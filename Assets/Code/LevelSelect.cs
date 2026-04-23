@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 /// <summary>
 /// 关卡选择界面控制器。
@@ -29,6 +30,9 @@ public class LevelSelect : MonoBehaviour
         public GameObject unlockedPanel;    // 已解锁状态显示面板
     }
 
+    // 缓存找到的所有 LevelButton（含非活跃层级中的）
+    private LevelButton[] cachedLevelButtons;
+
     void Start()
     {
         // 绑定章节解锁按钮事件
@@ -40,7 +44,28 @@ public class LevelSelect : MonoBehaviour
             cu.unlockButton.onClick.AddListener(() => OnUnlockChapterClicked(idx));
         }
 
+        // 预缓存所有 LevelButton（包括在未激活面板中的）
+        CacheLevelButtons();
+
         Refresh();
+    }
+
+    /// <summary>
+    /// 查找场景中所有 LevelButton，包括在未激活 GameObject 下的。
+    /// FindObjectsOfType 只能找到活跃物体，所以用 Resources.FindObjectsOfTypeAll 并过滤。
+    /// </summary>
+    void CacheLevelButtons()
+    {
+        var all = Resources.FindObjectsOfTypeAll<LevelButton>();
+        var list = new List<LevelButton>();
+        foreach (var lb in all)
+        {
+            // 只保留当前已加载场景中的，排除 Prefab 资源
+            if (lb.gameObject.scene.isLoaded)
+                list.Add(lb);
+        }
+        cachedLevelButtons = list.ToArray();
+        Debug.Log("[LevelSelect] 缓存了 " + cachedLevelButtons.Length + " 个 LevelButton（含非活跃层级）");
     }
 
     /// <summary>刷新所有 UI（关卡按钮 + 全局显示 + 章节解锁状态）。</summary>
@@ -64,7 +89,6 @@ public class LevelSelect : MonoBehaviour
         {
             int available = LevelDataManager.GetAvailableStars(allLevels);
             int total     = LevelDataManager.GetTotalStars(allLevels);
-            // 显示：可用 / 已获
             totalStarText.text = available + " / " + total;
         }
 
@@ -81,10 +105,13 @@ public class LevelSelect : MonoBehaviour
 
     void RefreshAllLevelButtons()
     {
-        LevelButton[] levelButtons = FindObjectsOfType<LevelButton>();
-        foreach (var lb in levelButtons)
+        // 如果缓存为空，重新查找
+        if (cachedLevelButtons == null || cachedLevelButtons.Length == 0)
+            CacheLevelButtons();
+
+        foreach (var lb in cachedLevelButtons)
         {
-            if (string.IsNullOrEmpty(lb.levelName)) continue;
+            if (lb == null || string.IsNullOrEmpty(lb.levelName)) continue;
 
             bool unlocked = chapterConfig != null && chapterConfig.IsLevelUnlocked(lb.levelName);
 
@@ -98,6 +125,7 @@ public class LevelSelect : MonoBehaviour
 
             // 星星槽位
             int bestStars = LevelDataManager.GetBestStars(lb.levelName);
+            Debug.Log("[LevelSelect] " + lb.levelName + " → BestStars=" + bestStars + " unlocked=" + unlocked);
             lb.RefreshStars(bestStars);
 
             // 金币文字
@@ -132,15 +160,12 @@ public class LevelSelect : MonoBehaviour
             bool isUnlocked = LevelDataManager.IsChapterUnlocked(cu.chapterIndex);
             int cost = chapterConfig.chapters[cu.chapterIndex].unlockCostStars;
 
-            // 切换面板
             if (cu.lockedPanel   != null) cu.lockedPanel.SetActive(!isUnlocked);
             if (cu.unlockedPanel != null) cu.unlockedPanel.SetActive(isUnlocked);
 
-            // 费用文字
             if (cu.costText != null)
                 cu.costText.text = "解锁：" + cost + "⭐";
 
-            // 按钮交互（星星不足时置灰）
             if (cu.unlockButton != null)
                 cu.unlockButton.interactable = !isUnlocked && available >= cost;
         }
@@ -156,7 +181,7 @@ public class LevelSelect : MonoBehaviour
         bool success = chapterConfig.TryUnlockChapter(chapterIndex);
         if (success)
         {
-            Refresh(); // 解锁后刷新全部 UI
+            Refresh();
         }
         else
         {
@@ -166,6 +191,7 @@ public class LevelSelect : MonoBehaviour
 
     public void LoadLevel(string levelName)
     {
+        Time.timeScale = 1f; // chapt1 打开面板时会冻结时间，进入关卡前必须恢复
         SceneManager.LoadScene(levelName);
     }
 

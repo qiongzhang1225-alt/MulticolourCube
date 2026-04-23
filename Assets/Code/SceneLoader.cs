@@ -13,6 +13,7 @@ public class SceneLoader : MonoBehaviour
         Button.onClick.AddListener(LoadTargetScene);
         CollectableStar.CollectedCount = 0;
         CollectableCoin.CollectedCount = 0;
+        DeathEffectUI.ResetDeathCount();
     }
     public void LoadTargetScene()
     {

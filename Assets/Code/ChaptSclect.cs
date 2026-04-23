@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class chapt1 : MonoBehaviour
@@ -9,20 +7,20 @@ public class chapt1 : MonoBehaviour
     public GameObject Chapt1Panel;
     public Button Chapt1Button;
     public Button retryButton;
+    public Button backToSelectButton;   // 新增：返回关卡选择按钮（可选，不拖也不报错）
     private bool isPaused = false;
-    // Start is called before the first frame update
+
     void Start()
     {
         Chapt1Panel.SetActive(false);
         Chapt1Button.onClick.AddListener(OnPauseButtonClicked);
         retryButton.onClick.AddListener(RestartLevel);
+
+        if (backToSelectButton != null)
+            backToSelectButton.onClick.AddListener(BackToLevelSelect);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Update() { }
 
     public void OnPauseButtonClicked()
     {
@@ -50,5 +48,11 @@ public class chapt1 : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    void BackToLevelSelect()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("LevelSelect");
     }
 }
