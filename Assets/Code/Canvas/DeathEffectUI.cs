@@ -42,8 +42,10 @@ public class DeathEffectUI : MonoBehaviour
         Instance = this;
         if (overlayGroup != null)
         {
+            // 用 CanvasGroup 控制显隐，不能用 SetActive（会禁用自身脚本，StartCoroutine 失效）
             overlayGroup.alpha = 0f;
-            overlayGroup.gameObject.SetActive(false);
+            overlayGroup.interactable = false;
+            overlayGroup.blocksRaycasts = false;
         }
     }
 
@@ -62,9 +64,10 @@ public class DeathEffectUI : MonoBehaviour
         DeathCount++;
         Debug.Log("[DeathEffect] × " + DeathCount);
 
-        // 激活面板
-        overlayGroup.gameObject.SetActive(true);
+        // 激活面板（通过 CanvasGroup 控制，不用 SetActive）
         overlayGroup.alpha = 0f;
+        overlayGroup.interactable = true;
+        overlayGroup.blocksRaycasts = true;
 
         // 隐藏文字，等黑幕完全覆盖后再显示
         if (deathCountText != null) deathCountText.alpha = 0f;
@@ -104,7 +107,9 @@ public class DeathEffectUI : MonoBehaviour
         // 黑幕淡出
         yield return StartCoroutine(FadeOverlay(1f, 0f, fadeOutDuration));
 
-        overlayGroup.gameObject.SetActive(false);
+        // 完全隐藏（不用 SetActive，保持脚本可用）
+        overlayGroup.interactable = false;
+        overlayGroup.blocksRaycasts = false;
     }
 
     // ──────── 动画工具 ────────
