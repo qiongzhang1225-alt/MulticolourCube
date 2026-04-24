@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 
 public class PlayerRespawn : MonoBehaviour
@@ -19,6 +20,13 @@ public class PlayerRespawn : MonoBehaviour
     private int checkpointOrder = -1;
     public bool IsInvincible { get; private set; } = false;
 
+    // ──────── 死亡/复活特效事件（外部可订阅）────────
+    /// <summary>玩家死亡时触发（参数：死亡位置）。可用于相机震动、粒子等。</summary>
+    public event Action<Vector3> OnPlayerDeath;
+
+    /// <summary>玩家复活完成后触发（参数：复活位置）。可用于光效、音效等。</summary>
+    public event Action<Vector3> OnPlayerRespawned;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -37,8 +45,15 @@ public class PlayerRespawn : MonoBehaviour
     {
         isRespawning = true;
         controller.enabled = false;
+
+        // 记录死亡位置（用于特效）
+        Vector3 deathPos = transform.position;
+
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
+
+        // 通知外部：玩家死亡
+        OnPlayerDeath?.Invoke(deathPos);
 
         // 隐藏玩家（即将进入黑幕）
         SetRenderersVisible(false);
@@ -46,11 +61,12 @@ public class PlayerRespawn : MonoBehaviour
         // ── 播放死亡黑幕特效 ──
         if (DeathEffectUI.Instance != null)
         {
-            yield return StartCoroutine(DeathEffectUI.Instance.PlayDeathSequence());
+            yield return DeathEffectUI.Instance.PlayDeathSequence(deathPos);
         }
         else
         {
             // 没有特效 UI 时，退回原有的短暂停顿
+            Debug.LogWarning("[PlayerRespawn] DeathEffectUI.Instance 为空，跳过死亡画面");
             yield return new WaitForSeconds(deathPause);
         }
 
@@ -60,12 +76,17 @@ public class PlayerRespawn : MonoBehaviour
             currentCheckpoint.ResetAllObjectStates();
         }
 
-        if (currentRespawnPoint != null)
-        {
-            transform.position = currentRespawnPoint.position;
-            transform.rotation = Quaternion.identity;
-            Physics2D.SyncTransforms();
-        }
+        // 复活位置
+        Vector3 respawnPos = currentRespawnPoint != null
+            ? currentRespawnPoint.position
+            : defaultRespawnPoint != null
+                ? defaultRespawnPoint.position
+                : transform.position;
+
+        transform.position = respawnPos;
+        transform.rotation = Quaternion.identity;
+        transform.localScale = Vector3.one;    // 防止移动平台导致的缩放异常
+        Physics2D.SyncTransforms();
 
         // 恢复玩家显示
         SetRenderersVisible(true);
@@ -73,8 +94,11 @@ public class PlayerRespawn : MonoBehaviour
         // ── 黑幕淡出 ──
         if (DeathEffectUI.Instance != null)
         {
-            yield return StartCoroutine(DeathEffectUI.Instance.PlayRespawnFadeOut());
+            yield return DeathEffectUI.Instance.PlayRespawnFadeOut(respawnPos);
         }
+
+        // 通知外部：玩家已复活
+        OnPlayerRespawned?.Invoke(respawnPos);
 
         // ── 无敌闪烁 ──
         yield return StartCoroutine(TemporaryInvincible());
