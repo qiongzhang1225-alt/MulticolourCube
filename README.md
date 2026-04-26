@@ -3,7 +3,7 @@
 > 一款基于 Unity 2022 的 2D 平台跳跃游戏。玩家操控一个可四面旋转的彩色方块，利用每个面的特殊能力穿越关卡，收集星星与金币，解锁更多章节。
 ##  参赛试玩Demo下载
 Windows平台可运行Demo（解压即玩，无需安装）：
-[点击下载完整Demo](粘贴你复制的下载链接)
+[[点击下载完整Demo](粘贴你复制的下载链接)](https://github.com/qiongzhang1225-alt/MulticolourCube/releases/download/v1.0.0/multicolour-cube.zip)
 ---
 
 ## 游戏特色
