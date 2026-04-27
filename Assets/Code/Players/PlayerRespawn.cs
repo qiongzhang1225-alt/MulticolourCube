@@ -12,11 +12,10 @@ public class PlayerRespawn : MonoBehaviour
     private bool isRespawning = false;
 
     public float deathPause = 0.2f;
-    public float invincibleTime = 0.5f;
+    public float invincibleTime = 1.5f;
     public float blinkInterval = 0.15f;
 
     private SpriteRenderer[] renderers;
-    private Collider2D[] playerColliders;
     private int checkpointOrder = -1;
     public bool IsInvincible { get; private set; } = false;
 
@@ -32,7 +31,6 @@ public class PlayerRespawn : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         controller = GetComponent<BlockController>();
         renderers = GetComponentsInChildren<SpriteRenderer>();
-        playerColliders = GetComponentsInChildren<Collider2D>();
         currentRespawnPoint = defaultRespawnPoint;
     }
 
@@ -114,7 +112,8 @@ public class PlayerRespawn : MonoBehaviour
     private IEnumerator TemporaryInvincible()
     {
         IsInvincible = true;
-        SetColliders(false);
+        // 不禁用碰撞体，防止玩家穿透地面导致重复死亡
+        // 仅依靠 IsInvincible 标记阻止 Die() 和各死亡源的伤害判定
         float t = 0;
         while (t < invincibleTime)
         {
@@ -123,13 +122,7 @@ public class PlayerRespawn : MonoBehaviour
             t += blinkInterval;
         }
         foreach (var sr in renderers) sr.enabled = true;
-        SetColliders(true);
         IsInvincible = false;
-    }
-
-    private void SetColliders(bool state)
-    {
-        foreach (var col in playerColliders) if (!col.isTrigger) col.enabled = state;
     }
 
     public void UpdateCheckpoint(Transform point, int order, Checkpoint cp)

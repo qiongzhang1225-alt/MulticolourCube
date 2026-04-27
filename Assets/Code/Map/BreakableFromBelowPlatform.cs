@@ -9,6 +9,10 @@ public class BreakableFromBelowPlatform : MonoBehaviour
     public GameObject breakEffectPrefab;       // 撞碎特效（可选）
     public float destroyDelay = 0.1f;          // 撞后延迟销毁时间
 
+    [Header("额外生成")]
+    [Tooltip("毁坏后生成的预制体（如碎片、道具等）")]
+    public GameObject additionalPrefab;        // 新增：毁坏后额外生成的物体
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!collision.collider.CompareTag(triggerTag)) return;
@@ -25,7 +29,7 @@ public class BreakableFromBelowPlatform : MonoBehaviour
     }
 
     /// <summary>
-    /// 销毁地块并生成特效
+    /// 销毁地块并生成特效与额外物体
     /// </summary>
     private void BreakPlatform()
     {
@@ -33,6 +37,12 @@ public class BreakableFromBelowPlatform : MonoBehaviour
         if (breakEffectPrefab != null)
         {
             Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
+        }
+
+        // 生成额外预制体（例如碎片、道具等）
+        if (additionalPrefab != null)
+        {
+            Instantiate(additionalPrefab, transform.position, Quaternion.identity);
         }
 
         // 禁用碰撞体（避免二次触发）

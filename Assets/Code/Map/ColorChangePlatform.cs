@@ -124,23 +124,40 @@ public class ColorChangePlatform : MonoBehaviour, IResettable
         }
     }
 
-    // ──────── 碰撞：变色（接触玩家面旋转） ────────
+    // ──────── 碰撞：变色（接触玩家面旋转 / 携色球） ────────
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!collision.collider.CompareTag("Player")) return;
+        // 玩家方块：根据接触面颜色变色
+        if (collision.collider.CompareTag("Player"))
+        {
+            PlayerColorSensor sensor = collision.collider.GetComponent<PlayerColorSensor>();
+            if (sensor != null)
+            {
+                Color contactColor = sensor.GetContactFaceColor(collision);
+                ApplyColor(contactColor);
+            }
+            return;
+        }
 
-        PlayerColorSensor sensor = collision.collider.GetComponent<PlayerColorSensor>();
-        if (sensor == null) return;
-
-        Color contactColor = sensor.GetContactFaceColor(collision);
-        ApplyColor(contactColor);
+        // 携色球：直接使用球携带的颜色
+        BallColorCarrier carrier = collision.collider.GetComponent<BallColorCarrier>();
+        if (carrier != null)
+        {
+            ApplyColor(carrier.CarriedColor);
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Player") && revertColorOnLeave)
-            ApplyColor(_originalColor);
+        if (revertColorOnLeave)
+        {
+            if (collision.collider.CompareTag("Player") ||
+                collision.collider.GetComponent<BallColorCarrier>() != null)
+            {
+                ApplyColor(_originalColor);
+            }
+        }
     }
 
     // ──────── 颜色应用 & 条件检测 ────────
@@ -187,6 +204,24 @@ public class ColorChangePlatform : MonoBehaviour, IResettable
     public void SetColor(Color color)
     {
         ApplyColor(color);
+    }
+
+    /// <summary>
+    /// 运行时切换"需要的颜色"（拼图谜题刷新等场景）。
+    /// 会重新解析精确颜色 + 立即重新评估当前 IsColorMatched 状态。
+    /// </summary>
+    public void SetRequiredFace(CubeFace face)
+    {
+        requiredFace = face;
+        useColorCondition = true;
+        ResolveRequiredColor();
+
+        // 重新评估当前匹配状态，必要时通知监听者
+        bool wasMatched = _isColorMatched;
+        _isColorMatched = ColorsApproximatelyEqual(_currentColor, _resolvedRequiredColor, colorTolerance);
+        if (matchIndicator != null) matchIndicator.SetActive(_isColorMatched);
+        if (_isColorMatched != wasMatched)
+            OnColorChanged?.Invoke(this);
     }
 
     /// <summary>重置到原始颜色（检查点恢复时调用）。</summary>

@@ -25,7 +25,19 @@
       "mcp__unity__manage_prefabs",
       "mcp__unity__execute_code",
       "Bash(grep -l \"DeathEffectUI\" /f/unity_program/multicolour-cube/Assets/Scenes/*.unity)",
-      "Bash(grep -l \"DeathOverlay\\\\|m_Name: DeathEffect\" /f/unity_program/multicolour-cube/Assets/Scenes/*.unity)"
+      "Bash(grep -l \"DeathOverlay\\\\|m_Name: DeathEffect\" /f/unity_program/multicolour-cube/Assets/Scenes/*.unity)",
+      "Bash(grep -E \"\\\\.\\(cs|prefab|asset\\)$\")",
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(asset|ttf|otf\\)$\")",
+      "Bash(grep -l \"VictoryUI\\\\|timeText\\\\|coinCountText\\\\|starImages\" \"F:/unity_program/multicolour-cube/Assets/Scenes\"/*.unity)",
+      "mcp__unity__manage_scene",
+      "mcp__unity__find_gameobjects",
+      "mcp__unity__manage_components",
+      "mcp__unity__manage_camera",
+      "mcp__unity__manage_editor",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && head -50 \"{}\"')",
+      "Bash(find . -name \"*.cs\" -type f -exec grep -l \"suggest\\\\|Suggest\" {} \\\\;)",
+      "Bash(ls -la README*)"
     ]
   }
 }

@@ -25,6 +25,10 @@ public class VictoryUI : MonoBehaviour
     [Header("死亡次数UI（可选）")]
     public TextMeshProUGUI deathCountText;  // 显示本关死亡次数
 
+    [Header("胜利 BGM（可选）")]
+    [Tooltip("通关时播放的独立 BGM。拖入 AudioClip 即可。")]
+    public AudioClip victoryBGM;
+
     void Start()
     {
         victoryPanel.SetActive(false);
@@ -40,6 +44,12 @@ public class VictoryUI : MonoBehaviour
     {
         victoryPanel.SetActive(true);
         Time.timeScale = 0f;
+
+        // ========== 胜利 BGM ==========
+        if (victoryBGM != null && BGMManager.Instance != null)
+        {
+            BGMManager.Instance.PlayVictoryBGM(victoryBGM);
+        }
 
         // 时间计时
         if (timeText != null && GameTimer.Instance != null)

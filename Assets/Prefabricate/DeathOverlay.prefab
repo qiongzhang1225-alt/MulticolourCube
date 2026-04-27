@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f34c89fcf1851074c88183cf9bef5e7f, type: 2}
+  m_sharedMaterial: {fileID: 2932973460812053885, guid: f34c89fcf1851074c88183cf9bef5e7f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -208,6 +208,11 @@ MonoBehaviour:
   holdDuration: 0.8
   fadeOutDuration: 0.45
   textPunchScale: 1.3
+  deathParticlePrefab: {fileID: 0}
+  respawnParticlePrefab: {fileID: 0}
+  deathSFX: {fileID: 0}
+  respawnSFX: {fileID: 0}
+  deathBGM: {fileID: 8300000, guid: a2332593cb2c1ff41ae90c12d7fb06d7, type: 3}
 --- !u!223 &920498966542078648
 Canvas:
   m_ObjectHideFlags: 0
@@ -413,8 +418,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\xD7 1"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f34c89fcf1851074c88183cf9bef5e7f, type: 2}
+  m_sharedMaterial: {fileID: 2932973460812053885, guid: f34c89fcf1851074c88183cf9bef5e7f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

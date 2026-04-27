@@ -38,6 +38,10 @@ public class DeathEffectUI : MonoBehaviour
     [Tooltip("复活音效")]
     public AudioClip respawnSFX;
 
+    [Header("死亡 BGM")]
+    [Tooltip("死亡面板显示期间循环播放的 BGM（如 Waiting.wav）。复活后自动停止并恢复场景 BGM。留空则不播放。")]
+    public AudioClip deathBGM;
+
     // 死亡统计
     public static int DeathCount { get; private set; } = 0;
 
@@ -99,6 +103,14 @@ public class DeathEffectUI : MonoBehaviour
         DeathCount++;
         _lastDeathPosition = deathPosition;
         Debug.Log("[DeathEffect] × " + DeathCount);
+
+        // ── 暂停场景 BGM，播放死亡 BGM ──
+        if (BGMManager.Instance != null)
+        {
+            BGMManager.Instance.PauseSceneBGM();
+            if (deathBGM != null)
+                BGMManager.Instance.PlayDeathBGM(deathBGM);
+        }
 
         // ── 触发死亡特效事件 ──
         OnDeathEffectStart?.Invoke(deathPosition);
@@ -165,6 +177,13 @@ public class DeathEffectUI : MonoBehaviour
         // 完全隐藏
         overlayGroup.interactable = false;
         overlayGroup.blocksRaycasts = false;
+
+        // ── 停止死亡 BGM，恢复场景 BGM ──
+        if (BGMManager.Instance != null)
+        {
+            BGMManager.Instance.StopDeathBGM();
+            BGMManager.Instance.ResumeSceneBGM();
+        }
 
         // 通知流程完成
         OnDeathSequenceComplete?.Invoke();
