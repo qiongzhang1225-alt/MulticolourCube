@@ -70,7 +70,9 @@ public class PlayerRespawn : MonoBehaviour
         }
 
         // ── 在黑幕（或短停顿）下执行重置 ──
-        if (currentCheckpoint != null)
+        // 仅致命死亡才重置可重置对象（变色平台等）；
+        // 软复活保留谜题进度，否则玩家每次受击都得重新解一遍颜色组合，体验极差。
+        if (showDeathEffect && currentCheckpoint != null)
         {
             currentCheckpoint.ResetAllObjectStates();
         }
