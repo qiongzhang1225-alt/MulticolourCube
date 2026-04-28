@@ -73,6 +73,18 @@ public class BossArenaController : MonoBehaviour
     [Tooltip("是否允许同一区域内 4 个目标颜色重复")]
     public bool allowDuplicateColors = true;
 
+    [Header("颜色球自动刷新（卡球时重出）")]
+    [Tooltip("启用：当球被推到玩家拿不回的位置（卡墙缝、卡角落、出界等），到时自动销毁并重新生成")]
+    public bool autoRefreshStuckBall = true;
+    [Tooltip("球速度低于此阈值即视为可能卡住（单位/秒）。建议 0.05~0.2")]
+    public float ballStuckSpeedThreshold = 0.1f;
+    [Tooltip("低速持续多少秒后真正判定为卡死并重生（避免误判刚落地的瞬间静止）")]
+    public float ballStuckGraceTime = 4f;
+    [Tooltip("球刚生成后多久内不做卡死检测（让它自由落体到位）")]
+    public float ballSpawnImmunity = 1.5f;
+    [Tooltip("看门狗轮询间隔（秒）")]
+    public float ballWatchdogInterval = 0.5f;
+
     [Header("视觉")]
     [Tooltip("非 active 区域的 UI 提示色叠加（变暗以提示当前不需要解）。"
         + "Alpha < 1 用于半透；设为白色不变暗")]
@@ -95,6 +107,10 @@ public class BossArenaController : MonoBehaviour
     private float roundStartTime;
     private int roundNumber = 0;
 
+    // 球看门狗状态
+    private float currentBallSpawnTime;
+    private float currentBallStuckTimer;
+
     // 缓存两边当前目标 face，方便只刷新一侧
     private List<CubeFace> leftFaces = new List<CubeFace>();
     private List<CubeFace> rightFaces = new List<CubeFace>();
@@ -103,6 +119,7 @@ public class BossArenaController : MonoBehaviour
     {
         if (colorSensor == null) colorSensor = FindObjectOfType<PlayerColorSensor>();
         StartCoroutine(MainLoop());
+        StartCoroutine(BallWatchdog());
     }
 
     IEnumerator MainLoop()
@@ -221,12 +238,71 @@ public class BossArenaController : MonoBehaviour
             Debug.LogWarning("[BossArena] 无法生成颜色球：ballSpawnPoint / ballSpawnZone 都未配置");
         }
 
+        // 重置看门狗计时
+        currentBallSpawnTime = Time.time;
+        currentBallStuckTimer = 0f;
+
         if (verboseLog)
         {
             Debug.Log($"[BossArena] Round {roundNumber}: active={(activeIsLeft ? "LEFT" : "RIGHT")}, " +
                 $"left=[{string.Join(",", leftFaces)}], right=[{string.Join(",", rightFaces)}], " +
                 $"ball={(activeIsLeft ? leftFaces[leftRegion.ballPlatformIndex] : rightFaces[rightRegion.ballPlatformIndex])}");
         }
+    }
+
+    // ── 颜色球看门狗 ──
+    /// <summary>
+    /// 周期性检查 currentBall：
+    ///   1) 已被销毁（玩家把球弄掉到死亡区） → 立即重生；
+    ///   2) 速度长时间低于阈值（卡墙缝、卡角落） → 重生；
+    ///   3) 当前回合已解 / 还没出球 / 在生成豁免期内 → 跳过。
+    /// 不会在非 active 回合（roundSolved 已 true 但还没进入下一回合）期间重生，避免视觉混乱。
+    /// </summary>
+    IEnumerator BallWatchdog()
+    {
+        var wait = new WaitForSeconds(Mathf.Max(0.1f, ballWatchdogInterval));
+        while (true)
+        {
+            yield return wait;
+            if (!autoRefreshStuckBall) continue;
+            if (roundSolved) continue;                      // 本回合已解，等下一回合
+            if (currentBallSpawnTime <= 0f) continue;       // 还没出过球
+
+            // 情况 1：球被销毁（被吞、出界、life-time 触发等）
+            if (currentBall == null)
+            {
+                if (verboseLog) Debug.Log("[BossArena] 球丢失，重新生成");
+                RespawnActiveBall();
+                continue;
+            }
+
+            // 球刚出生：豁免期不检测，让它自由落体
+            if (Time.time - currentBallSpawnTime < ballSpawnImmunity) continue;
+
+            // 情况 2：速度持续低于阈值
+            var rb = currentBall.GetComponent<Rigidbody2D>();
+            float speed = rb != null ? rb.velocity.magnitude : 0f;
+            if (speed < ballStuckSpeedThreshold)
+            {
+                currentBallStuckTimer += ballWatchdogInterval;
+                if (currentBallStuckTimer >= ballStuckGraceTime)
+                {
+                    if (verboseLog) Debug.Log($"[BossArena] 球卡住 {ballStuckGraceTime}s，重新生成");
+                    RespawnActiveBall();
+                }
+            }
+            else
+            {
+                currentBallStuckTimer = 0f;                 // 还在动 → 重置计时
+            }
+        }
+    }
+
+    /// <summary>立刻销毁当前球并在 spawn 点重新生成同色新球。</summary>
+    void RespawnActiveBall()
+    {
+        // 直接复用 SpawnBallForActiveSide：它本身会先销毁旧球
+        SpawnBallForActiveSide();
     }
 
     void SubscribeActive()
