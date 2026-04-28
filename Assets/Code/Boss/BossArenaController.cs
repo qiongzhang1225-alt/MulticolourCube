@@ -73,17 +73,20 @@ public class BossArenaController : MonoBehaviour
     [Tooltip("是否允许同一区域内 4 个目标颜色重复")]
     public bool allowDuplicateColors = true;
 
-    [Header("颜色球自动刷新（卡球时重出）")]
-    [Tooltip("启用：当球被推到玩家拿不回的位置（卡墙缝、卡角落、出界等），到时自动销毁并重新生成")]
+    [Header("颜色球自动刷新（错侧检测）")]
+    [Tooltip("启用：当球进入错误的一侧（与本回合 active 边不同），持续超过宽限期后自动重生。\n"
+        + "球被销毁/出界 → 立即重生（避免玩家无球可用）")]
     public bool autoRefreshStuckBall = true;
-    [Tooltip("球速度低于此阈值即视为可能卡住（单位/秒）。建议 0.05~0.2")]
-    public float ballStuckSpeedThreshold = 0.1f;
-    [Tooltip("低速持续多少秒后真正判定为卡死并重生（避免误判刚落地的瞬间静止）")]
-    public float ballStuckGraceTime = 4f;
-    [Tooltip("球刚生成后多久内不做卡死检测（让它自由落体到位）")]
+    [Tooltip("球持续在错误一侧多久后判定为需要重生（秒）。建议 1.5~3")]
+    public float ballWrongSideGraceTime = 2f;
+    [Tooltip("球刚生成后多久内不做错侧检测（让它自由落体落到目标侧）")]
     public float ballSpawnImmunity = 1.5f;
     [Tooltip("看门狗轮询间隔（秒）")]
     public float ballWatchdogInterval = 0.5f;
+    [Tooltip("勾选 → 用 manualMidlineX 作为左右分界；不勾 → 按左右区域平台 X 平均值自动算")]
+    public bool useManualMidline = false;
+    [Tooltip("手动指定的左右分界 X（仅 useManualMidline=true 时使用）")]
+    public float manualMidlineX = 0f;
 
     [Header("视觉")]
     [Tooltip("非 active 区域的 UI 提示色叠加（变暗以提示当前不需要解）。"
@@ -109,7 +112,8 @@ public class BossArenaController : MonoBehaviour
 
     // 球看门狗状态
     private float currentBallSpawnTime;
-    private float currentBallStuckTimer;
+    private float currentBallWrongSideTimer;
+    private float? cachedMidlineX;
 
     // 缓存两边当前目标 face，方便只刷新一侧
     private List<CubeFace> leftFaces = new List<CubeFace>();
@@ -240,7 +244,7 @@ public class BossArenaController : MonoBehaviour
 
         // 重置看门狗计时
         currentBallSpawnTime = Time.time;
-        currentBallStuckTimer = 0f;
+        currentBallWrongSideTimer = 0f;
 
         if (verboseLog)
         {
@@ -254,9 +258,9 @@ public class BossArenaController : MonoBehaviour
     /// <summary>
     /// 周期性检查 currentBall：
     ///   1) 已被销毁（玩家把球弄掉到死亡区） → 立即重生；
-    ///   2) 速度长时间低于阈值（卡墙缝、卡角落） → 重生；
+    ///   2) 球持续位于"错误一侧"超过宽限期（玩家把球推到了不需要解的那一边） → 重生；
     ///   3) 当前回合已解 / 还没出球 / 在生成豁免期内 → 跳过。
-    /// 不会在非 active 回合（roundSolved 已 true 但还没进入下一回合）期间重生，避免视觉混乱。
+    /// 注意：球卡在"正确一侧"的角落不重生 —— 仍是玩家可达解题路径上的"自然失误"，不打扰。
     /// </summary>
     IEnumerator BallWatchdog()
     {
@@ -268,7 +272,7 @@ public class BossArenaController : MonoBehaviour
             if (roundSolved) continue;                      // 本回合已解，等下一回合
             if (currentBallSpawnTime <= 0f) continue;       // 还没出过球
 
-            // 情况 1：球被销毁（被吞、出界、life-time 触发等）
+            // 情况 1：球被销毁（被吞、出界、life-time 触发等）—— 没球玩家就卡死了，必须立刻重生
             if (currentBall == null)
             {
                 if (verboseLog) Debug.Log("[BossArena] 球丢失，重新生成");
@@ -276,26 +280,58 @@ public class BossArenaController : MonoBehaviour
                 continue;
             }
 
-            // 球刚出生：豁免期不检测，让它自由落体
+            // 球刚出生：豁免期不检测，让它自由落体落到目标侧
             if (Time.time - currentBallSpawnTime < ballSpawnImmunity) continue;
 
-            // 情况 2：速度持续低于阈值
-            var rb = currentBall.GetComponent<Rigidbody2D>();
-            float speed = rb != null ? rb.velocity.magnitude : 0f;
-            if (speed < ballStuckSpeedThreshold)
+            // 情况 2：球进入了错误的一侧
+            float midX = ResolveMidlineX();
+            if (float.IsNaN(midX)) continue;                // 没法判定左右就跳过
+            bool ballOnLeft = currentBall.transform.position.x < midX;
+            bool onCorrectSide = (ballOnLeft == activeIsLeft);
+
+            if (!onCorrectSide)
             {
-                currentBallStuckTimer += ballWatchdogInterval;
-                if (currentBallStuckTimer >= ballStuckGraceTime)
+                currentBallWrongSideTimer += ballWatchdogInterval;
+                if (currentBallWrongSideTimer >= ballWrongSideGraceTime)
                 {
-                    if (verboseLog) Debug.Log($"[BossArena] 球卡住 {ballStuckGraceTime}s，重新生成");
+                    if (verboseLog) Debug.Log($"[BossArena] 球进入错误一侧 {ballWrongSideGraceTime}s（active={(activeIsLeft ? "LEFT" : "RIGHT")}, ball.x={currentBall.transform.position.x:F2}, mid={midX:F2}），重新生成");
                     RespawnActiveBall();
                 }
             }
             else
             {
-                currentBallStuckTimer = 0f;                 // 还在动 → 重置计时
+                currentBallWrongSideTimer = 0f;             // 在正确一侧 → 清零
             }
         }
+    }
+
+    /// <summary>解析左右分界 X：手动覆盖优先，否则用左右区域平台 X 平均值自动算（结果会缓存）。</summary>
+    float ResolveMidlineX()
+    {
+        if (useManualMidline) return manualMidlineX;
+        if (cachedMidlineX.HasValue) return cachedMidlineX.Value;
+
+        float lAvg = AveragePlatformX(leftRegion);
+        float rAvg = AveragePlatformX(rightRegion);
+        if (float.IsNaN(lAvg) || float.IsNaN(rAvg)) return float.NaN;
+
+        float mid = (lAvg + rAvg) * 0.5f;
+        cachedMidlineX = mid;
+        if (verboseLog) Debug.Log($"[BossArena] 自动分界线 X = {mid:F2}（左 avg={lAvg:F2}, 右 avg={rAvg:F2}）");
+        return mid;
+    }
+
+    static float AveragePlatformX(RegionConfig r)
+    {
+        if (r == null || r.platforms == null || r.platforms.Count == 0) return float.NaN;
+        float sum = 0f; int n = 0;
+        foreach (var p in r.platforms)
+        {
+            if (p == null) continue;
+            sum += p.transform.position.x;
+            n++;
+        }
+        return n == 0 ? float.NaN : sum / n;
     }
 
     /// <summary>立刻销毁当前球并在 spawn 点重新生成同色新球。</summary>
