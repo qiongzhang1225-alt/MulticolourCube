@@ -36,10 +36,13 @@ public class PlayerRespawn : MonoBehaviour
 
     public void Die()
     {
-        if (!isRespawning && !IsInvincible) StartCoroutine(RespawnRoutine());
+        if (isRespawning || IsInvincible) return;
+        // 询问 BossPlayerHP：这次是否致命？没有 HP 系统就当致命（兼容普通关卡）
+        bool fatal = BossPlayerHP.Instance == null || BossPlayerHP.Instance.IsNextHitFatal();
+        StartCoroutine(RespawnRoutine(fatal));
     }
 
-    private IEnumerator RespawnRoutine()
+    private IEnumerator RespawnRoutine(bool showDeathEffect)
     {
         isRespawning = true;
         controller.enabled = false;
@@ -50,25 +53,23 @@ public class PlayerRespawn : MonoBehaviour
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
-        // 通知外部：玩家死亡
+        // 通知外部：玩家死亡（BossPlayerHP 在这里扣血）
         OnPlayerDeath?.Invoke(deathPos);
 
         // 隐藏玩家（即将进入黑幕）
         SetRenderersVisible(false);
 
-        // ── 播放死亡黑幕特效 ──
-        if (DeathEffectUI.Instance != null)
+        // ── 死亡黑幕：仅当致命时播放，软复活直接短暂停顿 ──
+        if (showDeathEffect && DeathEffectUI.Instance != null)
         {
             yield return DeathEffectUI.Instance.PlayDeathSequence(deathPos);
         }
         else
         {
-            // 没有特效 UI 时，退回原有的短暂停顿
-            Debug.LogWarning("[PlayerRespawn] DeathEffectUI.Instance 为空，跳过死亡画面");
             yield return new WaitForSeconds(deathPause);
         }
 
-        // ── 在黑幕遮挡下执行重置 ──
+        // ── 在黑幕（或短停顿）下执行重置 ──
         if (currentCheckpoint != null)
         {
             currentCheckpoint.ResetAllObjectStates();
@@ -89,8 +90,8 @@ public class PlayerRespawn : MonoBehaviour
         // 恢复玩家显示
         SetRenderersVisible(true);
 
-        // ── 黑幕淡出 ──
-        if (DeathEffectUI.Instance != null)
+        // ── 黑幕淡出（仅致命死亡才有黑幕） ──
+        if (showDeathEffect && DeathEffectUI.Instance != null)
         {
             yield return DeathEffectUI.Instance.PlayRespawnFadeOut(respawnPos);
         }

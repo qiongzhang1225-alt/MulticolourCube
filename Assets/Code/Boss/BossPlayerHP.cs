@@ -35,6 +35,10 @@ public class BossPlayerHP : MonoBehaviour
     public int CurrentHP => currentHP;
     public int MaxHP => maxHP;
 
+    /// <summary>外部询问：这次受击是否会致命（HP 将归零）。
+    /// PlayerRespawn 用它决定是否弹死亡画面：返回 true → 走完整死亡流程；false → 软复活。</summary>
+    public bool IsNextHitFatal() => currentHP <= 1;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
