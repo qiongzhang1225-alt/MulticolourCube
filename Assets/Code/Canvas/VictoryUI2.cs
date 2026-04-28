@@ -16,6 +16,14 @@ public class VictoryUI : MonoBehaviour
     [Header("星星展示槽")]
     public StarSlot[] starSlots;
 
+    [Header("Boss 模式（勾选后用爱心代替星星，显示剩余 HP）")]
+    [Tooltip("勾选后：隐藏 starSlots、显示 heartSlots，并按 BossPlayerHP.CurrentHP 填充")]
+    public bool bossMode = false;
+    [Tooltip("Boss 模式下要点亮/置灰的爱心槽（按 HP 顺序，长度建议 = MaxHP）")]
+    public HeartSlot[] heartSlots;
+    [Tooltip("Boss 模式下要整体隐藏的 GameObject（如原星星根节点 Star1/2/3）；可选")]
+    public GameObject[] hideOnBossMode;
+
     [Header("关卡设置")]
     public string nextSceneName;
 
@@ -58,13 +66,47 @@ public class VictoryUI : MonoBehaviour
             timeText.text = GameTimer.Instance.GetFormattedTime();
         }
 
-        // ========== 星星逻辑 ==========
-        int starCount = CollectableStar.CollectedCount;
-        for (int i = 0; i < starSlots.Length; i++)
+        // ========== 星星 / 爱心 显示 ==========
+        if (bossMode)
         {
-            bool earned = i < starCount;
-            starSlots[i].fullStar.enabled = earned;
-            starSlots[i].emptyStar.enabled = !earned;
+            // 隐藏星星槽
+            if (starSlots != null)
+            {
+                for (int i = 0; i < starSlots.Length; i++)
+                {
+                    if (starSlots[i] == null) continue;
+                    if (starSlots[i].fullStar != null) starSlots[i].fullStar.enabled = false;
+                    if (starSlots[i].emptyStar != null) starSlots[i].emptyStar.enabled = false;
+                }
+            }
+            // 隐藏配置的根节点（例如 Star1/Star2/Star3）
+            if (hideOnBossMode != null)
+            {
+                for (int i = 0; i < hideOnBossMode.Length; i++)
+                    if (hideOnBossMode[i] != null) hideOnBossMode[i].SetActive(false);
+            }
+            // 显示生命值
+            int hp = BossPlayerHP.Instance != null ? BossPlayerHP.Instance.CurrentHP : 0;
+            if (heartSlots != null)
+            {
+                for (int i = 0; i < heartSlots.Length; i++)
+                {
+                    if (heartSlots[i] == null) continue;
+                    bool full = i < hp;
+                    if (heartSlots[i].fullHeart != null) heartSlots[i].fullHeart.enabled = full;
+                    if (heartSlots[i].emptyHeart != null) heartSlots[i].emptyHeart.enabled = !full;
+                }
+            }
+        }
+        else
+        {
+            int starCount = CollectableStar.CollectedCount;
+            for (int i = 0; i < starSlots.Length; i++)
+            {
+                bool earned = i < starCount;
+                starSlots[i].fullStar.enabled = earned;
+                starSlots[i].emptyStar.enabled = !earned;
+            }
         }
 
         // ========== 显示金币数量 ==========
@@ -85,9 +127,18 @@ public class VictoryUI : MonoBehaviour
 
         // ========== 保存本关最佳成绩到 PlayerPrefs ==========
         string currentLevel = SceneManager.GetActiveScene().name;
-        int savedStars = CollectableStar.CollectedCount;
+        // Boss 关用剩余 HP 顶替"星数"（最多 maxHP，越多越好）；普通关沿用收集星星数
+        int savedStars;
+        if (bossMode)
+        {
+            savedStars = BossPlayerHP.Instance != null ? BossPlayerHP.Instance.CurrentHP : 0;
+        }
+        else
+        {
+            savedStars = CollectableStar.CollectedCount;
+        }
         int savedCoins = CollectableCoin.CollectedCount;
-        Debug.Log("[VictoryUI] 保存成绩: " + currentLevel + " stars=" + savedStars + " coins=" + savedCoins);
+        Debug.Log("[VictoryUI] 保存成绩: " + currentLevel + " stars=" + savedStars + " coins=" + savedCoins + " bossMode=" + bossMode);
         LevelDataManager.SaveLevelResult(currentLevel, savedStars, savedCoins);
         Debug.Log("[VictoryUI] 保存后验证: BestStars=" + LevelDataManager.GetBestStars(currentLevel));
 
@@ -131,5 +182,12 @@ public class VictoryUI : MonoBehaviour
     {
         public Image fullStar;
         public Image emptyStar;
+    }
+
+    [System.Serializable]
+    public class HeartSlot
+    {
+        public Image fullHeart;
+        public Image emptyHeart;
     }
 }
