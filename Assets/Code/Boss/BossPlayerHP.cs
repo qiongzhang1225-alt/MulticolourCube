@@ -25,7 +25,7 @@ public class BossPlayerHP : MonoBehaviour
     [Header("行为")]
     [Tooltip("HP 归零时是否重新加载当前场景")] public bool reloadSceneOnDeath = true;
     [Tooltip("HP 归零到重新加载之间的延迟（秒，配合死亡动画）")]
-    public float reloadDelay = 1.2f;
+    public float reloadDelay = 2.8f;
 
     /// <summary>HP 改变时触发（参数：当前 HP, 最大 HP）。UI 订阅。</summary>
     public event Action<int, int> OnHPChanged;

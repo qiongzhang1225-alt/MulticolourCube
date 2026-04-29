@@ -92,6 +92,11 @@ public class BGMManager : MonoBehaviour
         if (clip == null) return;
         if (clip == currentSceneClip && activeSource.isPlaying) return;
 
+        // 新场景开始时：无条件清理死亡 BGM 与暂停标记。
+        // 防止「场景重载中断了死亡协程，导致 StopDeathBGM 永远未被调用」的 bug。
+        StopDeathBGM(0f);       // 立即停止，无需淡出
+        sceneBGMPaused = false; // 清除可能残留的暂停标记
+
         currentSceneClip = clip;
 
         // 停止胜利 BGM（如果正在播放）
@@ -192,12 +197,21 @@ public class BGMManager : MonoBehaviour
         deathFadeRoutine = StartCoroutine(FadeIn(deathSource, bgmVolume * 0.7f, fadeIn));
     }
 
-    /// <summary>停止死亡 BGM（淡出）。</summary>
+    /// <summary>停止死亡 BGM。fadeOut=0 立即停止，否则淡出。</summary>
     public void StopDeathBGM(float fadeOut = 0.2f)
     {
         if (deathFadeRoutine != null) StopCoroutine(deathFadeRoutine);
-        if (deathSource.isPlaying)
+        if (!deathSource.isPlaying) return;
+
+        if (fadeOut <= 0f)
+        {
+            deathSource.Stop();
+            deathSource.volume = 0f;
+        }
+        else
+        {
             deathFadeRoutine = StartCoroutine(FadeOut(deathSource, fadeOut));
+        }
     }
 
     // ══════════════════════════════════════
