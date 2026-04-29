@@ -149,9 +149,9 @@ public class VictoryUI : MonoBehaviour
 
     void Update()
     {
-        // 胜利面板显示时，按 Escape 返回关卡选择
+        // 胜利面板显示时，按 Escape / 手柄 Start 返回关卡选择
         if (victoryPanel != null && victoryPanel.activeSelf
-            && Input.GetKeyDown(KeyCode.Escape))
+            && InputAdapter.PausePressed)
         {
             BackToLevelSelect();
         }

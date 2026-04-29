@@ -327,6 +327,9 @@ public class SettingsPanel : MonoBehaviour
         if (bgmSlider != null) PlayerPrefs.SetFloat(KEY_BGM_VOL, bgmSlider.value);
         if (sfxSlider != null) PlayerPrefs.SetFloat(KEY_SFX_VOL, sfxSlider.value);
         PlayerPrefs.SetInt(KEY_FULLSCREEN, Screen.fullScreen ? 1 : 0);
+        // 保存当前分辨率下拉索引（修复：之前只定义了 KEY 但从未实际写入）
+        if (resolutionDropdown != null)
+            PlayerPrefs.SetInt(KEY_RESOLUTION, resolutionDropdown.value);
         PlayerPrefs.Save();
     }
 
@@ -353,6 +356,19 @@ public class SettingsPanel : MonoBehaviour
         if (fullscreenToggle != null)
         {
             fullscreenToggle.isOn = fs;
+            Screen.fullScreen = fs;
+        }
+
+        // 分辨率（需在 BuildResolutionList() 之后调用）
+        if (resolutionDropdown != null && PlayerPrefs.HasKey(KEY_RESOLUTION))
+        {
+            int savedIdx = PlayerPrefs.GetInt(KEY_RESOLUTION, -1);
+            if (savedIdx >= 0 && savedIdx < resolutionDropdown.options.Count)
+            {
+                resolutionDropdown.value = savedIdx;
+                resolutionDropdown.RefreshShownValue();
+                OnResolutionChanged(savedIdx);   // 立即应用
+            }
         }
     }
 }

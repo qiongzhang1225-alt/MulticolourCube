@@ -185,7 +185,7 @@ public class BlockController : MonoBehaviour
 
     void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (InputAdapter.JumpPressed)
         {
             Vector2 jumpDir = Vector2.zero;
             float jumpPower = 0f;
@@ -235,10 +235,9 @@ public class BlockController : MonoBehaviour
     {
         if (Time.time - lastRollTime < rollCooldown) return;
 
-        if (Input.GetMouseButtonDown(0))
+        if (InputAdapter.RollPressed)
         {
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            int direction = mouseWorldPos.x > transform.position.x ? 1 : -1;
+            int direction = InputAdapter.GetRollDirection(transform.position, Camera.main);
             StartCoroutine(Roll(direction));
         }
     }

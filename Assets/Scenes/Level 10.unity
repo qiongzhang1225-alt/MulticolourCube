@@ -1915,6 +1915,63 @@ Transform:
   - {fileID: 1249773438}
   m_Father: {fileID: 2071477657}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &453780146
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 786254373727732325, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_Name
+      value: Vanish
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 29.857912
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.1254668
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
 --- !u!1001 &457673532
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3917,10 +3974,11 @@ MonoBehaviour:
   roundTimeout: 0
   allowDuplicateColors: 1
   autoRefreshStuckBall: 1
-  ballStuckSpeedThreshold: 0.1
-  ballStuckGraceTime: 4
+  ballWrongSideGraceTime: 2
   ballSpawnImmunity: 1.5
   ballWatchdogInterval: 0.5
+  useManualMidline: 0
+  manualMidlineX: 0
   inactiveSideTint: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   dimInactiveSide: 1
   colorSensor: {fileID: 0}
@@ -5281,6 +5339,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1332140596}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &968395665
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 786254373727732325, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_Name
+      value: Vanish (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8.61973
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.4527116
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7356155754456538559, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fe1c146317adf2b48885e3fe333063b3, type: 3}
 --- !u!224 &973639654 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1734623700537675243, guid: 4c3cd4177e6bb7a4ca9c34ed235691ee, type: 3}
@@ -20915,12 +21030,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -30246,3 +30361,5 @@ SceneRoots:
   - {fileID: 6829816446793089551}
   - {fileID: 631515997299850760}
   - {fileID: 855403355}
+  - {fileID: 453780146}
+  - {fileID: 968395665}

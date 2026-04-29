@@ -2,22 +2,22 @@ using UnityEngine;
 
 public class StickyWallAbility : FaceAbilityBase
 {
-    [Header("Ç½ÃæÎü¸½ÉèÖÃ")]
-    [Tooltip("ÑØÇ½ÒÆ¶¯ËÙ¶È")] public float wallMoveSpeed = 3f;
-    [Tooltip("Ç½ÃæÌøÔ¾Á¦¶È")] public float wallJumpForce = 6f;
-    [Tooltip("Îü¸½Ê±ÊÇ·ñÍêÈ«µÖÏûÖØÁ¦")] public bool zeroGravityOnCling = true;
+    [Header("Ç½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½ï¿½Ç½ï¿½Æ¶ï¿½ï¿½Ù¶ï¿½")] public float wallMoveSpeed = 3f;
+    [Tooltip("Ç½ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½")] public float wallJumpForce = 6f;
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ç·ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")] public bool zeroGravityOnCling = true;
 
     private Rigidbody2D rb;
     private bool isTouchingWall = false;
     private Collider2D currentWall;
     private float originalGravityScale;
 
-    // ÕæÕýÔÊÐíÎü¸½µÄÌõ¼þ£ºµ±Ç°Ãæ¼¤»î + È·ÊµÅöµ½Ç½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½æ¼¤ï¿½ï¿½ + È·Êµï¿½ï¿½ï¿½ï¿½Ç½
     private bool CanCling => isFaceActive && isTouchingWall;
 
     protected override void Awake()
     {
-        base.Awake(); // ×ñÊØ»ùÀà
+        base.Awake(); // ï¿½ï¿½ï¿½Ø»ï¿½ï¿½ï¿½
         rb = GetComponentInParent<Rigidbody2D>();
         if (rb != null)
             originalGravityScale = rb.gravityScale;
@@ -50,7 +50,7 @@ public class StickyWallAbility : FaceAbilityBase
 
     protected override void OnAbilityDisable()
     {
-        ExitClinging(); // ÃæÊ§Ð§Ê±±ØÐëÍË³öÎü¸½
+        ExitClinging(); // ï¿½ï¿½Ê§Ð§Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     public override void AbilityUpdate()
@@ -61,7 +61,7 @@ public class StickyWallAbility : FaceAbilityBase
         HandleWallJump();
     }
 
-    // Í³Ò»¿ª¹ØÎü¸½£¨ºËÐÄÐÞ¸´µã£©
+    // Í³Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ã£©
     private void UpdateClingState()
     {
         if (CanCling)
@@ -95,7 +95,7 @@ public class StickyWallAbility : FaceAbilityBase
 
     private void HandleWallJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (InputAdapter.JumpPressed)
         {
             Vector2 jumpDir = GetJumpDirectionByGroundSide();
 
