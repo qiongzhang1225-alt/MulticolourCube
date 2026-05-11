@@ -6,7 +6,7 @@
 
 Windows 平台可运行 Demo（解压即玩，无需安装）：
 
-[点击下载完整 Demo](https://github.com/qiongzhang1225-alt/MulticolourCube/releases/download/v1.0.0/multicolour-cube.zip)
+[点击下载完整 Demo](https://github.com/qiongzhang1225-alt/MulticolourCube/releases/download/v2.0.0/multicolour-cube2.zip)
 
 ---
 
