@@ -2,7 +2,28 @@
 
 > 一款基于 Unity 2022 的 2D 平台跳跃游戏。玩家操控一个可四面旋转的彩色方块，利用每个面的特殊能力穿越关卡，收集星星与金币，解锁更多章节，并在终章 Boss 战中通过颜色解谜击败巨型三角形 Boss。
 
-##  参赛试玩 Demo 下载
+<p align="center">
+  <img src="TAPTAP/ScreenShot_2026-04-26_210641_733.png" width="620" alt="彩色方块 · 主菜单">
+</p>
+
+---
+
+## 游戏演示
+
+核心机制是 **「翻滚换面」**：鼠标左键让方块翻滚 90°，哪一面着地，哪一面的能力就生效。
+
+![游戏演示](docs/demo.gif)
+
+| | |
+|:--:|:--:|
+| ![旋转障碍与星星收集](docs/gameplay-hazard.png) | ![传送锚点](docs/gameplay-teleport.png) |
+| 旋转障碍与星星收集 | 传送锚点（洋红连线为锚点标记） |
+| ![彩球与变色平台](docs/gameplay-colorball.png) | ![三星通关结算](docs/victory-3stars.png) |
+| 彩球与变色平台 | 三星通关结算 |
+
+---
+
+## 参赛试玩 Demo 下载
 
 Windows 平台可运行 Demo（解压即玩，无需安装）：
 
@@ -215,7 +236,7 @@ Assets/
 
 1. 克隆仓库
    ```bash
-   git clone https://github.com/qiongzhang1225-alt/unity.git
+   git clone https://github.com/qiongzhang1225-alt/MulticolourCube.git
    ```
 2. 用 **Unity Hub** 打开项目（推荐版本 2022.3.x LTS）
 3. 等待依赖包自动导入
